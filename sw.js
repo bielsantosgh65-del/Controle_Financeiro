@@ -1,6 +1,6 @@
 /* Service worker: deixa o app abrir sem internet.
    Ao publicar uma nova versão, aumente o número em CACHE (ex.: fp-v2). */
-const CACHE='fp-v1.0.0';
+const CACHE='fp-v1.0.1';
 const ARQUIVOS=['./','./index.html','./manifest.webmanifest','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/apple-touch-icon.png','./icons/favicon.svg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ARQUIVOS)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});

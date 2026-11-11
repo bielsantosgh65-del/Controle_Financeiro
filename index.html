@@ -16,6 +16,7 @@
 <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Questrial&display=swap">
+<style>.install-btn{position:fixed;left:max(16px,calc(env(safe-area-inset-left,0px) + 16px));bottom:max(24px,calc(env(safe-area-inset-bottom,0px) + 24px));z-index:41;border:0;border-radius:999px;padding:13px 18px;font:inherit;font-size:14px;font-weight:700;background:var(--primary);color:var(--primary-ink);box-shadow:0 6px 20px rgba(0,40,70,.3);cursor:pointer}.install-help{position:fixed;inset:0;z-index:70;background:rgba(5,20,30,.55);display:flex;align-items:center;justify-content:center;padding:16px}.ih-box{background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:12px;padding:18px;max-width:420px;width:100%;font-size:14px;line-height:1.5}.ih-box h3{margin:0 0 8px;font-size:16px}.ih-box ol{padding-left:20px;margin:0 0 8px}.ih-box p{margin:0 0 8px}</style>
 <style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;padding:0;-webkit-tap-highlight-color:transparent}img{max-width:100%}[hidden]{display:none!important}</style>
 <style id="app-css">/* Layout: faixa azul de cabeçalho, abas roláveis fixas, conteúdo em grade de painéis (máx. 1200px), botão flutuante de cadastro rápido */
 :root{
@@ -217,7 +218,7 @@ svg.chart [data-act]:hover{opacity:.8}
 </head>
 <body>
 <div id="app"><div class="boot">Carregando…</div></div><div id="modal-root"></div><div id="toast"></div>
-<script>window.__APP__=true;window.__APP_VERSION__='1.0.0';</script>
+<script>window.__APP__=true;window.__APP_VERSION__='1.0.1';</script>
 <script id="app-js">(function(){
 'use strict';
 /* ===================== Utilidades ===================== */
@@ -1251,7 +1252,30 @@ function vWelcome(){
 ACT.inicio=()=>{D=emptyData();D.cats=clone(CATS_PADRAO);D.contas.push({id:'c'+uid(),nome:'Conta principal',inst:'',tipo:'corrente',saldoIni:0,saldoEm:today(),cor:'#004976',ord:1,obs:''});commit();toast('Pronto. Cadastre suas contas e cartões.');};
 
 })();</script>
+<button id="btn-instalar" class="install-btn" type="button" hidden>&#8681; Instalar app</button>
+<div id="install-help" class="install-help" hidden role="dialog" aria-modal="true" aria-labelledby="ih-t"><div class="ih-box"><h3 id="ih-t">Instalar o app</h3><div id="ih-txt"></div><button type="button" class="btn pri" id="ih-ok">Entendi</button></div></div>
 <script>
+(function(){
+ var b=document.getElementById('btn-instalar'),h=document.getElementById('install-help'),ev=null;
+ var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+ if(standalone)return;
+ var ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ b.hidden=false;
+ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();ev=e;b.hidden=false;});
+ window.addEventListener('appinstalled',function(){b.hidden=true;ev=null;});
+ function ajuda(){
+  document.getElementById('ih-txt').innerHTML=ios
+   ?'<p>No iPhone, a instalação é feita pelo <b>Safari</b>:</p><ol><li>Toque em <b>Compartilhar</b> (quadrado com seta para cima).</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>.</li></ol><p>Se estiver no Chrome ou em outro navegador, abra este endereço no Safari.</p>'
+   :'<p>Toque no menu <b>⋮</b> do Chrome (canto superior direito) e escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p><p>Se a opção não aparecer, recarregue a página uma vez e tente de novo. Se o app já estiver instalado, abra pelo ícone na tela inicial.</p>';
+  h.hidden=false;
+ }
+ document.getElementById('ih-ok').addEventListener('click',function(){h.hidden=true;});
+ h.addEventListener('click',function(e){if(e.target===h)h.hidden=true;});
+ b.addEventListener('click',function(){
+  if(ev){ev.prompt();ev.userChoice.then(function(r){if(r&&r.outcome==='accepted')b.hidden=true;});ev=null;}
+  else ajuda();
+ });
+})();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{});});}
 if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{});}
 </script>
