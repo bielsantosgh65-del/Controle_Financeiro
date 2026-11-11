@@ -1,0 +1,6 @@
+# Nunca envie seus dados financeiros para o GitHub
+*.json
+!package.json
+backup*/
+.DS_Store
+Thumbs.db
